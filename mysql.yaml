@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: mysql
+  name: mysql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: mysql
+    spec:
+      containers:
+      - image: mariadb
+        name: mysql
+        envFrom:
+        - secretRef:
+            name: mysql-secret
+        - configMapRef:
+            name: mysql-config
+        volumeMounts:
+        - mountPath: /var/lib/mysql
+          name: mysql-vol
+      volumes:
+      - name: mysql-vol
+        persistentVolumeClaim:
+          claimName: mysql-pvc
+      tolerations:
+      - key: tier
+        value: db
+        operator: Equal
+        effect: NoSchedule
+      nodeSelector:
+        tier: db
+status: {}
